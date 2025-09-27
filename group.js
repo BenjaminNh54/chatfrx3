@@ -7,7 +7,7 @@ setInterval(() => {
     fetchMyGroups();
 }, 120000);
 
-const SERVER_URL = 'http://localhost';
+const SERVER_URL = 'https://chatfrx3.onrender.com';
 
 // Création d'un groupe
 const createGroupForm = document.getElementById('createGroupForm');
