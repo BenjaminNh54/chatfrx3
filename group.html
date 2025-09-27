@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des groupes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Gestion des groupes</h2>
+    <section>
+        <h3>Créer un groupe</h3>
+        <form id="createGroupForm">
+            <label for="groupName">Nom du groupe :</label>
+            <input type="text" id="groupName" name="groupName" required>
+            <button type="submit">Créer</button>
+        </form>
+    </section>
+    <section>
+        <h3>Groupes dont je suis admin</h3>
+        <ul id="adminGroups"></ul>
+        <div id="editGroupSection" style="display:none;">
+            <h4>Demandes d'adhésion au groupe <span id="editGroupName"></span></h4>
+            <div id="requestsContainer"></div>
+            <!-- <form id="addUserForm">
+                <label for="userToAdd">Utilisateur à ajouter :</label>
+                <input type="text" id="userToAdd" name="userToAdd" required>
+                <button type="submit">Ajouter</button>
+            </form>
+            <ul id="groupUsers"></ul> -->
+        </div>
+    </section>
+    <section>
+        <h3>Groupes dont je fais partie</h3>
+        <ul id="myGroups"></ul>
+        <div id="groupActions" style="display:none;">
+            <button id="connectGroupBtn">Se connecter au groupe</button>
+            <!-- <button id="requestAdminBtn">Demander à rejoindre le groupe</button> -->
+        </div>
+    </section>
+    <section>
+        <h3>Demande pour rejoindre un groupe</h3>
+        <form id="requestGroupForm">
+            <label for="requestGroupName">Nom du groupe :</label>
+            <input type="text" id="requestGroupName" name="requestGroupName" required>
+            <button type="submit">Envoyer la demande</button>
+        </form>
+        <div id="requestStatus"></div>
+    </section>
+    <script src="group.js"></script>
+</body>
+</html>

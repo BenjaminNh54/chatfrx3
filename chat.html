@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat du groupe</title>
+    <style>
+        #messages { border: 1px solid #ccc; height: 400px; overflow-y: scroll; padding: 5px; }
+        #messages div { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <h1 id="groupName"></h1>
+    <div id="messages"></div>
+    <form id="chatForm">
+        <input type="text" id="messageInput" placeholder="Tape ton message..." autocomplete="off" required>
+        <button type="submit">Envoyer</button>
+    </form>
+
+    <script>
+        const pseudo = localStorage.getItem('userId'); // sauvegardé lors du login
+        const groupId = localStorage.getItem('selectedGroupId');
+        const groupName = localStorage.getItem('selectedGroupName');
+
+        // recuperer les msg du groupe
+        async function fetchGroupMessages() {
+            const res = await fetch(`http://localhost:8080/group/${groupId}/messages`);
+            const messages = await res.json();
+            messages.forEach(msg => {
+                addMsgToChat(msg);
+            });
+        }
+        fetchGroupMessages();
+
+        function addMsgToChat(msg) {
+            console.log(msg);
+            
+            const div = document.createElement('div');
+            div.textContent = `[${new Date(msg.date).toLocaleDateString()} ${new Date(msg.date).toLocaleTimeString()}] ${msg.pseudo}: ${msg.text}`;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        document.getElementById('groupName').textContent = groupName;
+
+        const messagesDiv = document.getElementById('messages');
+        const ws = new WebSocket('ws://localhost:8080'); // adapte si Render
+
+        ws.onopen = () => console.log('Connecté au chat du groupe');
+
+        ws.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            // n'afficher que les messages du groupe sélectionné
+            if (msg.group_id && msg.group_id == groupId) {
+                addMsgToChat(msg);
+            }
+        };
+
+        document.getElementById('chatForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = document.getElementById('messageInput').value;
+            if (!text) return;
+
+            ws.send(JSON.stringify({ pseudo, text, group_id: groupId }));
+            document.getElementById('messageInput').value = '';
+        });
+    </script>
+</body>
+</html>
