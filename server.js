@@ -313,7 +313,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Ajout: servir une page HTML pour le client Web (route / ou /index.html) 
-  else if (req.method === 'GET' && (req.url === '' || req.url === '/login' || req.url === '/login.html')) {
+  else if (req.method === 'GET' && (req.url === '/' || req.url === '/login' || req.url === '/login.html')) {
     const filePath = path.join(__dirname, 'login.html');
     fs.stat(filePath, (err) => {
       if (err) {
