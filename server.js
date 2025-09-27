@@ -325,6 +325,18 @@ const server = http.createServer(async (req, res) => {
       fs.createReadStream(filePath).pipe(res);
     });
   }
+    else if (req.method === 'GET' && (req.url === '/' || req.url === '/login' || req.url === '/login.js')) {
+    const filePath = path.join(__dirname, 'login.js');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('login.js introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  }
   else if (req.method === 'GET' && (req.url === '/group' || req.url === '/group.html')) {
     const filePath = path.join(__dirname, 'group.html');
     fs.stat(filePath, (err) => {
@@ -336,8 +348,51 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       fs.createReadStream(filePath).pipe(res);
     });
-  }
-  else {
+  }else if (req.method === 'GET' && (req.url === '/group' || req.url === '/group.js')) {
+    const filePath = path.join(__dirname, 'group.js');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('group.js introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  }  else if (req.method === 'GET' && (req.url === '/create-user' || req.url === '/create-user.html')) {
+    const filePath = path.join(__dirname, 'create-user.html');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('create-user.html introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  } else if (req.method === 'GET' && (req.url === '/create-user' || req.url === '/create-user.js')) {
+    const filePath = path.join(__dirname, 'create-user.js');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('create-user.js introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  } else if (req.method === 'GET' && (req.url === '/chat' || req.url === '/chat.html')) {
+    const filePath = path.join(__dirname, 'chat.html');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('chat.html introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  } else {
     res.writeHead(200);
     res.end("Serveur de chat en ligne via Render + Supabase");
 
