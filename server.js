@@ -3,6 +3,8 @@ const { createClient } = require('@supabase/supabase-js');
 const WebSocket = require('ws');
 const http = require('http');
 const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
 // ===== CONFIG SUPABASE =====
 const supabaseUrl = 'https://osqzuptinfbahmfncjgl.supabase.co';
@@ -133,30 +135,30 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(data));
     }
-} else if (req.method === 'GET' && req.url.startsWith('/groups/member/')) {
-  // Groupes dont je fais partie (mais pas admin)
-  const userId = req.url.split('/').pop();
-  const { data, error } = await supabase
-    .from('group_members')
-    .select('group_id, groups(id, name, admin_id)')
-    .eq('user_id', userId);
+  } else if (req.method === 'GET' && req.url.startsWith('/groups/member/')) {
+    // Groupes dont je fais partie (mais pas admin)
+    const userId = req.url.split('/').pop();
+    const { data, error } = await supabase
+      .from('group_members')
+      .select('group_id, groups(id, name, admin_id)')
+      .eq('user_id', userId);
 
-  if (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify([]));
-  } else {
-    // Exclure les groupes où je suis admin
-    const filtered = data.filter(g => g.groups.admin_id !== parseInt(userId));
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(filtered.map(g => ({
-      id: g.group_id,
-      name: g.groups.name
-    }))));
-  }
-} else if (req.method === 'POST' && req.url.match(/^\/group\/[0-9]+\/add-user$/)) {
-  // Ajouter un utilisateur à un groupe
-  const groupId = req.url.split('/')[2];
-  let body = '';
+    if (error) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify([]));
+    } else {
+      // Exclure les groupes où je suis admin
+      const filtered = data.filter(g => g.groups.admin_id !== parseInt(userId));
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(filtered.map(g => ({
+        id: g.group_id,
+        name: g.groups.name
+      }))));
+    }
+  } else if (req.method === 'POST' && req.url.match(/^\/group\/[0-9]+\/add-user$/)) {
+    // Ajouter un utilisateur à un groupe
+    const groupId = req.url.split('/')[2];
+    let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', async () => {
       try {
@@ -258,7 +260,7 @@ const server = http.createServer(async (req, res) => {
     });
   } else if (req.method === 'DELETE' && req.url.match(/^\/group\/request$/)) {
     console.log('DELETE group/request');
-    
+
     // suppression de demande d'accès à un groupe
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
@@ -308,9 +310,37 @@ const server = http.createServer(async (req, res) => {
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(data));
-  } else {
+  }
+
+  // Ajout: servir une page HTML pour le client Web (route / ou /index.html) 
+  else if (req.method === 'GET' && (req.url === '' || req.url === '/login' || req.url === '/login.html')) {
+    const filePath = path.join(__dirname, 'login.html');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('login.html introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  }
+  else if (req.method === 'GET' && (req.url === '/group' || req.url === '/group.html')) {
+    const filePath = path.join(__dirname, 'group.html');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('group.html introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  }
+  else {
     res.writeHead(200);
     res.end("Serveur de chat en ligne via Render + Supabase");
+
   }
 });
 
@@ -398,7 +428,7 @@ wss.on('connection', async (ws) => {
       const savedMsg = data[0];
 
       // rechercher le nom du user si possible
-      if (savedMsg.id_user ) {
+      if (savedMsg.id_user) {
         const { data: userData, error: userErr } = await supabase
           .from('users')
           .select('name')

@@ -6,7 +6,7 @@ setInterval(() => {
     fetchAdminGroups();
     fetchMyGroups();
 }, 120000);
-
+cc
 const SERVER_URL = 'http://localhost:8080';
 
 // Création d'un groupe
