@@ -7,7 +7,7 @@ setInterval(() => {
     fetchMyGroups();
 }, 120000);
 
-const SERVER_URL = 'http://localhost:8080';
+const SERVER_URL = 'http://localhost';
 
 // Création d'un groupe
 const createGroupForm = document.getElementById('createGroupForm');

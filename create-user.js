@@ -2,7 +2,7 @@
 // Ce script gère la création d'utilisateur avec Supabase
 
 // URL du serveur local ou Render
-const SERVER_URL = 'http://localhost:8080';
+const SERVER_URL = 'http://localhost';
 //const SERVER_URL = 'https://chat-i4wn.onrender.com';
 
 const createUserForm = document.getElementById('createUserForm');
