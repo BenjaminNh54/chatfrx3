@@ -43,7 +43,7 @@
         document.getElementById('groupName').textContent = groupName;
 
         const messagesDiv = document.getElementById('messages');
-        const ws = new WebSocket('ws://chatfrx3.onrender.com'); // adapte si Render 
+        const ws = new WebSocket('wss://chatfrx3.onrender.com'); // adapte si Render 
 
         ws.onopen = () => console.log('Connecté au chat du groupe');
 
