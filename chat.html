@@ -23,7 +23,7 @@
 
         // recuperer les msg du groupe
         async function fetchGroupMessages() {
-            const res = await fetch(`http://localhost:8080/group/${groupId}/messages`);
+            const res = await fetch(`https://chatfrx3.onrender.com/group/${groupId}/messages`);
             const messages = await res.json();
             messages.forEach(msg => {
                 addMsgToChat(msg);
