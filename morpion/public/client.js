@@ -1,0 +1,168 @@
+let ws;
+let myId = null;
+let currentGame = null;
+let myRole = null; // 'X' ou 'O'
+
+function connect() {
+  ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host);
+
+  ws.onopen = () => console.log('✅ Connecté au serveur WebSocket');
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+
+    if (data.type === 'welcome') {
+      myId = data.id;
+    }
+
+    if (data.type === 'users') {
+      renderUsers(data.users);
+    }
+
+    if (data.type === 'invite') {
+      const accepter = confirm(`${data.fromName} vous invite à jouer. Accepter ?`);
+      ws.send(JSON.stringify({
+        type: 'invite-response',
+        from: data.from,
+        accept: accepter
+      }));
+    }
+
+    if (data.type === 'invite-accepted') {
+      currentGame = data.gameId;
+      myRole = data.role;
+      document.getElementById('status').innerText =
+        `En jeu contre ${data.opponentName} — Vous êtes ${myRole}`;
+      setBoardEnabled(myRole === 'X'); // X commence
+      clearChat();
+    }
+
+    if (data.type === 'update') {
+      if (data.gameId !== currentGame) return;
+      renderBoard(data.board);
+      const canPlay = (data.turn === myId);
+      document.getElementById('status').innerText =
+        canPlay ? "Votre tour de jouer" : "Tour de l'adversaire";
+      setBoardEnabled(canPlay);
+    }
+
+    if (data.type === 'game-over') {
+      if (data.gameId !== currentGame) return;
+      renderBoard(data.board);
+      alert(data.winner ? `Partie terminée ! Gagnant : ${data.winner}` : 'Match nul');
+      currentGame = null;
+      myRole = null;
+      document.getElementById('status').innerText = 'Pas de partie';
+      setBoardEnabled(false);
+    }
+
+    if (data.type === 'invite-declined') {
+      alert('Invitation refusée');
+    }
+
+    if (data.type === 'game-ended') {
+      alert('Partie terminée : ' + (data.reason || 'fin du jeu'));
+      currentGame = null;
+      myRole = null;
+      document.getElementById('status').innerText = 'Pas de partie';
+      setBoardEnabled(false);
+    }
+
+    // ==== Chat ====
+    if (data.type === 'chat') {
+      if (data.gameId !== currentGame) return; // messages uniquement pour cette partie
+      const box = document.getElementById('chatBox');
+      const div = document.createElement('div');
+      div.textContent = `${data.fromName}: ${data.message}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+  };
+
+  ws.onclose = () => {
+    console.log('❌ Déconnecté du serveur WebSocket');
+  };
+}
+
+// Affiche la liste des joueurs en ligne
+function renderUsers(users) {
+  const container = document.getElementById('users');
+  container.innerHTML = '';
+  users.forEach(u => {
+    if (u.id === myId) return;
+    const div = document.createElement('div');
+    div.textContent = u.name + ' ';
+    const btn = document.createElement('button');
+    btn.textContent = 'Inviter';
+    btn.onclick = () => ws.send(JSON.stringify({ type: 'invite', target: u.id }));
+    div.appendChild(btn);
+    container.appendChild(div);
+  });
+}
+
+// Crée la grille une seule fois
+function createBoardHTML() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.index = i;
+    cell.onclick = () => onCellClick(i);
+    board.appendChild(cell);
+  }
+}
+
+// Met à jour l’affichage sans recréer les cellules
+function renderBoard(board) {
+  const cells = document.querySelectorAll('.cell');
+  board.forEach((val, i) => {
+    cells[i].textContent = val || '';
+  });
+}
+
+// Clic sur une case
+function onCellClick(index) {
+  if (!currentGame) return alert('Pas en partie');
+  ws.send(JSON.stringify({ type: 'move', gameId: currentGame, index }));
+}
+
+// Active ou désactive la grille
+function setBoardEnabled(enabled) {
+  const board = document.getElementById('board');
+  if (enabled) board.classList.remove('disabled');
+  else board.classList.add('disabled');
+}
+
+// ==== Chat ====
+function clearChat() {
+  document.getElementById('chatBox').innerHTML = '';
+}
+
+// Envoi d’un message chat
+function setupChat() {
+  document.getElementById('chatSend').onclick = sendMessage;
+  document.getElementById('chatInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+}
+
+function sendMessage() {
+  const msg = document.getElementById('chatInput').value.trim();
+  if (!msg || !currentGame) return;
+  ws.send(JSON.stringify({ type: 'chat', gameId: currentGame, message: msg }));
+  document.getElementById('chatInput').value = '';
+}
+
+// Initialisation au chargement de la page
+window.addEventListener('load', () => {
+  connect();
+  createBoardHTML(); // une seule fois
+  setBoardEnabled(false);
+  setupChat();
+
+  document.getElementById('setName').onclick = () => {
+    const name = document.getElementById('nameInput').value || 'Anonyme';
+    ws.send(JSON.stringify({ type: 'set-name', name }));
+  };
+});
