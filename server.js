@@ -523,7 +523,7 @@ server.listen(PORT, () => {
 });
 
 // ===== ANTI-SLEEP (Keep-Alive) =====
-const RENDER_URL = "https://chat-i4wn.onrender.com"; // <-- remplace par ton URL publique Render
+const RENDER_URL = "https://chatfrx3.onrender.com/"; // <-- remplace par ton URL publique Render
 
 setInterval(() => {
   https.get(RENDER_URL, (res) => {
