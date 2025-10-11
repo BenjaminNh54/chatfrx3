@@ -526,7 +526,7 @@ server.listen(PORT, () => {
 const RENDER_URL = "https://chatfrx3.onrender.com/"; // <-- remplace par ton URL publique Render
 
 setInterval(() => {
-  RENDER_URL.forEach(url => {
+  https.get(RENDER_URL, (res) => {
     https.get(url, (res) => {
       console.log("Ping anti-sleep:", res.statusCode);
     }).on("error", (err) => {
