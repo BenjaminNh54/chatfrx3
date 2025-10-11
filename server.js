@@ -523,12 +523,14 @@ server.listen(PORT, () => {
 });
 
 // ===== ANTI-SLEEP (Keep-Alive) =====
-const RENDER_URL = "https://chatfrx3.onrender.com/"; // <-- remplace par ton URL publique Render
+const RENDER_URL = ["https://chatfrx3.onrender.com/","https://chatfrx3-a-morpion.onrender.com/"]; // <-- remplace par ton URL publique Render
 
 setInterval(() => {
-  https.get(RENDER_URL, (res) => {
-    console.log("Ping anti-sleep:", res.statusCode);
-  }).on("error", (err) => {
+  RENDER_URL.forEach(url => {
+    https.get(url, (res) => {
+      console.log("Ping anti-sleep:", res.statusCode);
+    }).on("error", (err) => {
     console.error("Erreur ping anti-sleep:", err.message);
   });
 }, 5 * 60 * 1000); // toutes les 5 minutes
+})
