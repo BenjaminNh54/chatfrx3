@@ -52,6 +52,7 @@ function connect() {
       alert(data.winner ? `Partie terminée ! Gagnant : ${data.winner}` : 'Match nul');
       currentGame = null;
       myRole = null;
+      window.location.href = window.location.href;
       document.getElementById('status').innerText = 'Pas de partie';
       setBoardEnabled(false);
     }
