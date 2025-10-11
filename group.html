@@ -1,51 +1,163 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Gestion des groupes</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Gestion des groupes</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0a1a2f;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+    }
+
+    h2 {
+      font-size: 26px;
+      color: #222;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    section {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      padding: 20px 25px;
+      margin-bottom: 25px;
+      width: 100%;
+      max-width: 600px;
+      transition: transform 0.2s ease;
+    }
+
+    section:hover {
+      transform: translateY(-3px);
+    }
+
+    h3 {
+      color: #0078d7;
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin: 8px 0 4px;
+      font-weight: bold;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #0078d7;
+      outline: none;
+    }
+
+    button {
+      background: #0078d7;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+      background: #005fa3;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0;
+    }
+
+    ul li {
+      background: #f3f4f6;
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    #editGroupSection, #groupActions {
+      margin-top: 15px;
+      background: #fdfdfd;
+      border: 1px solid #eee;
+      padding: 10px;
+      border-radius: 10px;
+    }
+
+    #requestsContainer {
+      background: #fafafa;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #e0e0e0;
+    }
+
+    #requestStatus {
+      margin-top: 10px;
+      color: #0078d7;
+      font-weight: bold;
+    }
+
+  </style>
 </head>
 <body>
-    <h2>Gestion des groupes</h2>
-    <section>
-        <h3>Créer un groupe</h3>
-        <form id="createGroupForm">
-            <label for="groupName">Nom du groupe :</label>
-            <input type="text" id="groupName" name="groupName" required>
-            <button type="submit">Créer</button>
-        </form>
-    </section>
-    <section>
-        <h3>Groupes dont je suis admin</h3>
-        <ul id="adminGroups"></ul>
-        <div id="editGroupSection" style="display:none;">
-            <h4>Demandes d'adhésion au groupe <span id="editGroupName"></span></h4>
-            <div id="requestsContainer"></div>
-            <!-- <form id="addUserForm">
-                <label for="userToAdd">Utilisateur à ajouter :</label>
-                <input type="text" id="userToAdd" name="userToAdd" required>
-                <button type="submit">Ajouter</button>
-            </form>
-            <ul id="groupUsers"></ul> -->
-        </div>
-    </section>
-    <section>
-        <h3>Groupes dont je fais partie</h3>
-        <ul id="myGroups"></ul>
-        <div id="groupActions" style="display:none;">
-            <button id="connectGroupBtn">Se connecter au groupe</button>
-            <!-- <button id="requestAdminBtn">Demander à rejoindre le groupe</button> -->
-        </div>
-    </section>
-    <section>
-        <h3>Demande pour rejoindre un groupe</h3>
-        <form id="requestGroupForm">
-            <label for="requestGroupName">Nom du groupe :</label>
-            <input type="text" id="requestGroupName" name="requestGroupName" required>
-            <button type="submit">Envoyer la demande</button>
-        </form>
-        <div id="requestStatus"></div>
-    </section>
-    <script src="group.js"></script>
+  <h2>Gestion des groupes</h2>
+
+  <section>
+    <h3>Créer un groupe</h3>
+    <form id="createGroupForm">
+      <label for="groupName">Nom du groupe :</label>
+      <input type="text" id="groupName" name="groupName" required>
+      <button type="submit">Créer</button>
+    </form>
+  </section>
+
+  <section>
+    <h3>Groupes dont je suis admin</h3>
+    <ul id="adminGroups"></ul>
+    <div id="editGroupSection" style="display:none;">
+      <h4>Demandes d'adhésion au groupe <span id="editGroupName"></span></h4>
+      <div id="requestsContainer"></div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Groupes dont je fais partie</h3>
+    <ul id="myGroups"></ul>
+    <div id="groupActions" style="display:none;">
+      <button id="connectGroupBtn">Se connecter au groupe</button>
+    </div>
+  </section>
+
+  <section>
+    <h3>Demande pour rejoindre un groupe</h3>
+    <form id="requestGroupForm">
+      <label for="requestGroupName">Nom du groupe :</label>
+      <input type="text" id="requestGroupName" name="requestGroupName" required>
+      <button type="submit">Envoyer la demande</button>
+    </form>
+    <div id="requestStatus"></div>
+  </section>
+
+  <script src="group.js"></script>
 </body>
 </html>
