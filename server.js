@@ -523,7 +523,7 @@ server.listen(PORT, () => {
 });
 
 // ===== ANTI-SLEEP (Keep-Alive) =====
-const RENDER_URL = ["https://chatfrx3.onrender.com/","https://chatfrx3-a-morpion.onrender.com/"]; // <-- remplace par ton URL publique Render
+const RENDER_URL = "https://chatfrx3.onrender.com/"; // <-- remplace par ton URL publique Render
 
 setInterval(() => {
   RENDER_URL.forEach(url => {
