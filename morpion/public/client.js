@@ -35,6 +35,8 @@ function connect() {
         `En jeu contre ${data.opponentName} — Vous êtes ${myRole}`;
       setBoardEnabled(myRole === 'X'); // X commence
       clearChat();
+      // afficher le chat pour la partie en cours
+      toggleChat(true);
     }
 
     if (data.type === 'update') {
@@ -55,6 +57,8 @@ function connect() {
       window.location.href = window.location.href;
       document.getElementById('status').innerText = 'Pas de partie';
       setBoardEnabled(false);
+      // masquer le chat quand la partie est terminée
+      toggleChat(false);
     }
 
     if (data.type === 'invite-declined') {
@@ -67,6 +71,8 @@ function connect() {
       myRole = null;
       document.getElementById('status').innerText = 'Pas de partie';
       setBoardEnabled(false);
+      // masquer le chat si la partie se termine
+      toggleChat(false);
     }
 
     // ==== Chat ====
@@ -140,6 +146,19 @@ function clearChat() {
   document.getElementById('chatBox').innerHTML = '';
 }
 
+// Affiche ou masque le chat (cache les éléments liés pour ne pas les supprimer)
+function toggleChat(visible) {
+  const chatBox = document.getElementById('chatBox');
+  const chatInput = document.getElementById('chatInput');
+  const chatSend = document.getElementById('chatSend');
+  if (!chatBox || !chatInput || !chatSend) return;
+  const display = visible ? '' : 'none';
+  const container = chatBox.parentElement || chatBox;
+  container.style.display = display;
+  chatInput.style.display = display;
+  chatSend.style.display = display;
+}
+
 // Envoi d’un message chat
 function setupChat() {
   document.getElementById('chatSend').onclick = sendMessage;
@@ -161,9 +180,15 @@ window.addEventListener('load', () => {
   createBoardHTML(); // une seule fois
   setBoardEnabled(false);
   setupChat();
+  // masquer le chat par défaut (visible seulement quand une partie est lancée)
+  toggleChat(false);
 
   document.getElementById('setName').onclick = () => {
     const name = document.getElementById('nameInput').value || 'Anonyme';
     ws.send(JSON.stringify({ type: 'set-name', name }));
+    //nous allons prevenire l'utilisateur que son pseudo a bien ete validé en lui faisant une boite de dialogue puis nous retirons le champs de pseudo et le bouton valider
+    alert(`Votre pseudo est défini : ${name}`);
+    document.getElementById('nameInput').style.display = 'none';
+    document.getElementById('setName').style.display = 'none';
   };
 });
