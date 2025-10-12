@@ -4,83 +4,103 @@
   <meta charset="UTF-8">
   <title>Gestion des groupes</title>
   <style>
+    /* === STYLE GLOBAL === */
     body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #0a1a2f;
       margin: 0;
-      padding: 40px;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #1e1f26;
+      color: #e3e3e3;
       display: flex;
       flex-direction: column;
       align-items: center;
-      color: #333;
+      padding: 40px;
+      min-height: 100vh;
     }
 
     h2 {
-      font-size: 26px;
-      color: #222;
-      margin-bottom: 30px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+      font-size: 30px;
+      color: #fff;
+      margin-bottom: 35px;
+      text-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+      letter-spacing: 1px;
     }
 
+    /* === CARTES DE SECTION === */
     section {
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      padding: 20px 25px;
+      background: rgba(47, 49, 54, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.35);
+      padding: 25px 30px;
       margin-bottom: 25px;
       width: 100%;
       max-width: 600px;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
 
     section:hover {
       transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     }
 
     h3 {
-      color: #0078d7;
+      color: #7289da;
+      font-size: 20px;
       margin-top: 0;
+      margin-bottom: 15px;
     }
 
+    h4 {
+      color: #aeb7ff;
+      margin-bottom: 10px;
+    }
+
+    /* === FORMULAIRES === */
     label {
       display: block;
       margin: 8px 0 4px;
-      font-weight: bold;
+      font-weight: 600;
+      color: #dcdcdc;
     }
 
     input[type="text"] {
       width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #555;
+      background: #2f3136;
+      color: #fff;
       margin-bottom: 10px;
+      transition: border-color 0.2s, box-shadow 0.2s;
       box-sizing: border-box;
-      transition: border-color 0.2s;
     }
 
     input[type="text"]:focus {
-      border-color: #0078d7;
+      border-color: #7289da;
+      box-shadow: 0 0 6px #7289daaa;
       outline: none;
     }
 
     button {
-      background: #0078d7;
+      background: #5865f2;
       color: white;
       border: none;
-      padding: 10px 15px;
-      border-radius: 10px;
+      padding: 10px 16px;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
       transition: background 0.2s, transform 0.1s;
     }
 
     button:hover {
-      background: #005fa3;
+      background: #4752c4;
     }
 
     button:active {
       transform: scale(0.97);
     }
 
+    /* === LISTES === */
     ul {
       list-style: none;
       padding: 0;
@@ -88,35 +108,66 @@
     }
 
     ul li {
-      background: #f3f4f6;
-      border-radius: 10px;
-      padding: 8px 12px;
-      margin-bottom: 6px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      background: #2c2f33;
+      border: 1px solid #3a3f45;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      transition: background 0.2s;
     }
 
-    #editGroupSection, #groupActions {
+    ul li:hover {
+      background: #3a3f45;
+    }
+
+    #editGroupSection,
+    #groupActions {
       margin-top: 15px;
-      background: #fdfdfd;
-      border: 1px solid #eee;
-      padding: 10px;
-      border-radius: 10px;
+      background: #23272a;
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid #3a3f45;
     }
 
     #requestsContainer {
-      background: #fafafa;
-      border-radius: 10px;
+      background: #2f3136;
+      border-radius: 8px;
       padding: 10px;
       margin-top: 10px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid #3a3f45;
     }
 
     #requestStatus {
       margin-top: 10px;
-      color: #0078d7;
+      color: #00b0f4;
       font-weight: bold;
     }
 
+    /* === SCROLLBAR CUSTOM === */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #202225;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #5865f2;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4752c4;
+    }
+
+    /* === ANIMATION D’APPARITION === */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    section {
+      animation: fadeIn 0.5s ease;
+    }
   </style>
 </head>
 <body>

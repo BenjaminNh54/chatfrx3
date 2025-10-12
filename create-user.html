@@ -2,21 +2,127 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Créer un compte</title>
+    <title>Créer un compte - ChatFRX</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .logo {
+            font-size: 2.2em;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        form {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            width: 320px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        form:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 6px #007bff55;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #007bff, #00c6ff);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #0056d2, #00aaff);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        p {
+            margin-top: 20px;
+            color: white;
+            font-size: 1em;
+        }
+
+        a {
+            color: #fff;
+            font-weight: bold;
+            text-decoration: underline;
+            transition: 0.3s;
+        }
+
+        a:hover {
+            color: #cce7ff;
+        }
+    </style>
 </head>
 <body>
-    <h2>Créer un compte utilisateur</h2>
+    <div class="logo">💬 ChatFRX</div>
+    <h2>Créer un compte</h2>
+
     <form id="createUserForm">
         <label for="name">Nom d'utilisateur :</label>
-        <input type="text" id="name" name="name" required>
-        <br>
+        <input type="text" id="name" name="name" placeholder="Choisissez un pseudo" required>
+
         <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" required>
-        <br>
+        <input type="password" id="password" name="password" placeholder="Créez un mot de passe" required>
+
         <button type="submit">Créer le compte</button>
     </form>
+
     <p>Déjà un compte ? <a href="login.html">Se connecter</a></p>
+
     <script src="create-user.js"></script>
 </body>
 </html>

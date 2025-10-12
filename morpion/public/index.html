@@ -5,61 +5,76 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>🎮 Morpion Multijoueur</title>
   <style>
+    :root {
+      --bg-main: #0a1a2f;
+      --bg-card: #12263f;
+      --bg-cell: #1a3353;
+      --bg-hover: #23497a;
+      --accent: #2979ff;
+      --accent-light: #66b3ff;
+      --text: #e3e9f5;
+    }
+
     body {
-      background: #0a1a2f;
-      color: white;
+      background: var(--bg-main);
+      color: var(--text);
       font-family: "Segoe UI", Arial, sans-serif;
       display: flex;
-      gap: 40px;
+      gap: 30px;
       justify-content: center;
       align-items: flex-start;
       padding: 30px;
       min-height: 100vh;
       box-sizing: border-box;
+      flex-wrap: wrap;
     }
 
     h2, h3 {
-      color: #66b3ff;
-      text-shadow: 0 0 6px rgba(255,255,255,0.2);
+      color: var(--accent-light);
+      text-shadow: 0 0 6px rgba(255,255,255,0.1);
     }
 
     #left, #main, #chatContainer {
-      background: #12263f;
+      background: var(--bg-card);
       border: 2px solid #1f3b5c;
       border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      flex: 1;
+      min-width: 250px;
+      max-width: 350px;
     }
 
-    #left {
-      width: 260px;
+    #main {
+      flex: 1.2;
+      max-width: 400px;
+      text-align: center;
     }
 
     #board {
       display: grid;
-      grid-template-columns: repeat(3, 100px);
-      gap: 8px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
       margin-top: 15px;
       justify-content: center;
     }
 
     .cell {
-      width: 100px;
-      height: 100px;
+      aspect-ratio: 1 / 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 48px;
+      font-size: 2.5em;
       font-weight: bold;
-      background: #1a3353;
+      background: var(--bg-cell);
       border-radius: 12px;
       cursor: pointer;
       transition: background 0.2s, transform 0.1s;
-      box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
     }
 
     .cell:hover {
-      background: #23497a;
+      background: var(--bg-hover);
       transform: scale(1.05);
     }
 
@@ -71,7 +86,7 @@
     #users {
       max-height: 300px;
       overflow-y: auto;
-      background: #1a3353;
+      background: var(--bg-cell);
       border-radius: 8px;
       padding: 10px;
     }
@@ -94,7 +109,7 @@
     }
 
     input {
-      background: #1a3353;
+      background: var(--bg-cell);
       color: white;
       outline: none;
     }
@@ -104,7 +119,7 @@
     }
 
     button {
-      background: #2979ff;
+      background: var(--accent);
       color: white;
       cursor: pointer;
       font-weight: bold;
@@ -117,15 +132,16 @@
 
     /* Chat */
     #chatContainer {
-      width: 280px;
       display: flex;
       flex-direction: column;
+      height: auto;
     }
 
     #chatBox {
-      height: 300px;
+      flex: 1;
+      min-height: 250px;
       overflow-y: auto;
-      background: #1a3353;
+      background: var(--bg-cell);
       border-radius: 8px;
       padding: 10px;
       margin-bottom: 10px;
@@ -135,10 +151,11 @@
     #chatBox div {
       margin-bottom: 6px;
       line-height: 1.4;
+      word-wrap: break-word;
     }
 
     #chatInput {
-      background: #1a3353;
+      background: var(--bg-cell);
       color: white;
       border: none;
       border-radius: 8px;
@@ -147,27 +164,73 @@
     }
 
     #status {
+      color: var(--accent-light);
       text-align: center;
-      color: #81c4ff;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
 
-    /* Scrollbar stylée */
+    /* Scrollbar */
     ::-webkit-scrollbar {
       width: 8px;
     }
 
     ::-webkit-scrollbar-thumb {
-      background: #23497a;
+      background: var(--bg-hover);
       border-radius: 8px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
       background: #3a6cb1;
     }
+
+    /* === Responsive === */
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+      }
+
+      #left, #main, #chatContainer {
+        width: 100%;
+        max-width: 500px;
+      }
+
+      #board {
+        gap: 6px;
+      }
+
+      .cell {
+        font-size: 2em;
+      }
+    }
+
+    @media (max-width: 500px) {
+      body {
+        padding: 10px;
+      }
+
+      h2 {
+        font-size: 1.4em;
+      }
+
+      h3 {
+        font-size: 1.2em;
+      }
+
+      #board {
+        gap: 5px;
+      }
+
+      .cell {
+        font-size: 1.8em;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- Colonne gauche: pseudo + joueurs -->
+  <!-- Colonne gauche -->
   <div id="left">
     <h3>👤 Mon pseudo</h3>
     <input id="nameInput" placeholder="Votre nom" />
@@ -177,13 +240,13 @@
     <div id="users"></div>
   </div>
 
-  <!-- Colonne centrale: morpion -->
+  <!-- Plateau de jeu -->
   <div id="main">
     <h2 id="status">Pas de partie</h2>
     <div id="board"></div>
   </div>
 
-  <!-- Colonne droite: chat -->
+  <!-- Chat -->
   <div id="chatContainer">
     <h3>💬 Chat</h3>
     <div id="chatBox"></div>
