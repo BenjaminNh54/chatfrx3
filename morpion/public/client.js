@@ -20,12 +20,13 @@ function connect() {
     }
 
     if (data.type === 'invite') {
-      const accepter = confirm(`${data.fromName} vous invite à jouer. Accepter ?`);
-      ws.send(JSON.stringify({
-        type: 'invite-response',
-        from: data.from,
-        accept: accepter
-      }));
+      // Si on est déjà en partie, auto-refuser l'invitation
+      if (currentGame) {
+        ws.send(JSON.stringify({ type: 'invite-response', from: data.from, accept: false }));
+      } else {
+        const accepter = confirm(`${data.fromName} vous invite à jouer. Accepter ?`);
+        ws.send(JSON.stringify({ type: 'invite-response', from: data.from, accept: accepter }));
+      }
     }
 
     if (data.type === 'invite-accepted') {
@@ -95,13 +96,18 @@ function connect() {
 function renderUsers(users) {
   const container = document.getElementById('users');
   container.innerHTML = '';
+  // Si on est déjà en partie, ne pas afficher la liste pour éviter d'inviter/être invité
+  if (currentGame) return;
   users.forEach(u => {
     if (u.id === myId) return;
     const div = document.createElement('div');
     div.textContent = u.name + ' ';
     const btn = document.createElement('button');
     btn.textContent = 'Inviter';
-    btn.onclick = () => ws.send(JSON.stringify({ type: 'invite', target: u.id }));
+    btn.onclick = () => {
+      if (currentGame) { alert('Impossible d\'inviter : vous êtes en partie'); return; }
+      ws.send(JSON.stringify({ type: 'invite', target: u.id }));
+    };
     div.appendChild(btn);
     container.appendChild(div);
   });
