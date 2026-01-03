@@ -1,264 +1,349 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <title>Chat du groupe 💬</title>
-  <style>
-    body {
-      background: #0a1a2f; /* bleu foncé élégant */
-      color: white;
-      font-family: "Segoe UI", Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    h1 {
-      margin-bottom: 15px;
-      color: #66b3ff;
-      text-shadow: 0 0 5px rgba(255,255,255,0.3);
-    }
-
-    #messages {
-      border: 2px solid #1f3b5c;
-      background: #12263f;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 700px;
-      height: 400px;
-      overflow-y: auto;
-      padding: 10px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    }
-
-    #messages div {
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    #messages div span.time {
-      color: #aaa;
-      font-size: 0.8em;
-    }
-
-    #chatForm {
-      margin-top: 15px;
-      width: 90%;
-      max-width: 700px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    #messageInput {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      outline: none;
-      background: #1a3353;
-      color: white;
-      font-size: 1em;
-    }
-
-    #messageInput::placeholder {
-      color: #ccc;
-    }
-
-    button {
-      padding: 10px 18px;
-      background: #2979ff;
-      border: none;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.2s;
-      font-weight: bold;
-    }
-
-    button:hover {
-      background: #5393ff;
-    }
-
-    a {
-      color: #66b3ff;
-      text-decoration: none;
-      margin-left: 10px;
-      font-weight: bold;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <h1 id="groupName">Chat du groupe</h1>
-  
-  <div id="messages"></div>
-
-  <form id="chatForm">
-    <input type="text" id="messageInput" placeholder="Tape ton message..." autocomplete="off" required>
-    <button type="submit">Envoyer</button>
-    <a href="https://chatfrx3-a-morpion.onrender.com/" target="_blank">🎮 Aller au morpion</a>
-  </form>
-  <hr/>
-  <h1>Recevoir vos messages en notifications</h1>
-<p>Cliquez sur le bouton ci-dessous pour activer les notifications :</p>
-<button id="notifyBtn">Activer les notifications</button>
-
-<div id="instructions">
-  <p id="browser-instructions"></p>
-</div>
-
-  <script>
-    const pseudo = localStorage.getItem('userId');
-    const groupId = localStorage.getItem('selectedGroupId');
-    const groupName = localStorage.getItem('selectedGroupName');
-    document.getElementById('groupName').textContent = groupName;
-
-    const messagesDiv = document.getElementById('messages');
-    const ws = new WebSocket('wss://chatfrx3.onrender.com');
-
-    // Ne pas jouer de son pendant le chargement de l'historique
-    let initialLoad = true;
-
-
-    // Petit beep de notification via WebAudio — pas besoin de fichier externe
-    function playNotification() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = 'sine';
-        o.frequency.value = 880; // A6
-        o.connect(g);
-        g.connect(ctx.destination);
-        g.gain.setValueAtTime(0, ctx.currentTime);
-        g.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.001);
-        o.start();
-        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
-        setTimeout(() => { o.stop(); ctx.close(); }, 700);
-      } catch (e) {
-        // fallback: essayer Audio simple
-        try { new Audio().play(); } catch (__) {}
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <title>Chat du groupe 💬</title>
+    <style>
+      body {
+        background: #0a1a2f; /* bleu foncé élégant */
+        color: white;
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
-    }
 
-    ws.onopen = () => console.log('✅ Connecté au chat du groupe');
+      h1 {
+        margin-bottom: 15px;
+        color: #66b3ff;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+      }
 
-    ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data);
-      if (msg.group_id && msg.group_id == groupId) addMsgToChat(msg);
-    };
+      #messages {
+        border: 2px solid #1f3b5c;
+        background: #12263f;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 700px;
+        height: 400px;
+        overflow-y: auto;
+        padding: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      }
 
-    async function fetchGroupMessages() {
-      const res = await fetch(`https://chatfrx3.onrender.com/group/${groupId}/messages`);
-      const messages = await res.json();
-      messages.forEach(msg => addMsgToChat(msg));
-      // historique chargé — autoriser les notifications
-      initialLoad = false;
-    }
-    fetchGroupMessages();
+      #messages div {
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
 
-    function addMsgToChat(msg) {
-      const div = document.createElement('div');
-      const time = new Date(msg.date);
-      div.innerHTML = `<span class="time">[${time.toLocaleTimeString()}]</span> 
-                       <strong>${msg.pseudo}</strong>: ${msg.text}`;
-      messagesDiv.appendChild(div);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      // Jouer un son et afficher une notification si : historique chargé ET message d'un autre utilisateur ET page non focus
-      try {
-        if (!initialLoad && String(msg.pseudo) !== String(pseudo)) {
-          playNotification();
-          // Afficher une notification du navigateur si permission accordée et page non focus
-          if ('Notification' in window && Notification.permission === 'granted' && !document.hasFocus()) {
-            new Notification(`Nouveau message de ${msg.pseudo}`, {
-              body: msg.text,
-              icon: 'https://chatfrx3.onrender.com/favicon.ico' // Remplacez par une icône appropriée si disponible
-            });
-          }
+      #messages div span.time {
+        color: #aaa;
+        font-size: 0.8em;
+      }
+
+      #chatForm {
+        margin-top: 15px;
+        width: 90%;
+        max-width: 700px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      #messageInput {
+        flex: 1;
+        padding: 10px;
+        border-radius: 6px;
+        border: none;
+        outline: none;
+        background: #1a3353;
+        color: white;
+        font-size: 1em;
+      }
+
+      #messageInput::placeholder {
+        color: #ccc;
+      }
+
+      button {
+        padding: 10px 18px;
+        background: #2979ff;
+        border: none;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: 0.2s;
+        font-weight: bold;
+      }
+
+      button:hover {
+        background: #5393ff;
+      }
+
+      a {
+        color: #66b3ff;
+        text-decoration: none;
+        margin-left: 10px;
+        font-weight: bold;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      hr {
+        margin-top: 44px;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="groupName">Chat du groupe</h1>
+
+    <div id="messages"></div>
+
+    <form id="chatForm">
+      <input
+        type="text"
+        id="messageInput"
+        placeholder="Tape ton message..."
+        autocomplete="off"
+        required
+      />
+      <button type="submit">Envoyer</button>
+      <a href="https://chatfrx3-a-morpion.onrender.com/" target="_blank"
+        >🎮 Aller au morpion</a
+      >
+    </form>
+    <hr />
+    <h1>Recevoir vos messages en notifications</h1>
+    <p>Cliquez sur le bouton ci-dessous pour activer les notifications :</p>
+    <button id="notifyBtn">Activer les notifications</button>
+
+    <div id="instructions">
+      <p id="browser-instructions"></p>
+    </div>
+
+    <script>
+      const pseudo = localStorage.getItem("userId");
+      const groupId = localStorage.getItem("selectedGroupId");
+      const groupName = localStorage.getItem("selectedGroupName");
+      document.getElementById("groupName").textContent = groupName;
+
+      const messagesDiv = document.getElementById("messages");
+      const ws = new WebSocket("wss://chatfrx3.onrender.com");
+
+      // Ne pas jouer de son pendant le chargement de l'historique
+      let initialLoad = true;
+
+      // Petit beep de notification via WebAudio — pas besoin de fichier externe
+      function playNotification() {
+        try {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = "sine";
+          o.frequency.value = 880; // A6
+          o.connect(g);
+          g.connect(ctx.destination);
+          g.gain.setValueAtTime(0, ctx.currentTime);
+          g.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.001);
+          o.start();
+          g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+          setTimeout(() => {
+            o.stop();
+            ctx.close();
+          }, 700);
+        } catch (e) {
+          // fallback: essayer Audio simple
+          try {
+            new Audio().play();
+          } catch (__) {}
         }
-      } catch (e) { /* ignore */ }
-    }
+      }
 
-    document.getElementById('chatForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const text = document.getElementById('messageInput').value;
-      if (!text) return;
-      ws.send(JSON.stringify({ pseudo, text, group_id: groupId }));
-      document.getElementById('messageInput').value = '';
-    });
-    //On va integrer la page pour activer les notifications
- 
-const btn = document.getElementById('notifyBtn');
-const instructions = document.getElementById('instructions');
-const browserInstructions = document.getElementById('browser-instructions');
+      ws.onopen = () => console.log("✅ Connecté au chat du groupe");
 
-function detectBrowser() {
-  const ua = navigator.userAgent;
-  if (ua.includes("Chrome") && !ua.includes("Edg")) return "chrome";
-  if (ua.includes("Firefox")) return "firefox";
-  if (ua.includes("Edg")) return "edge";
-  return "other";
-}
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.group_id && msg.group_id == groupId) addMsgToChat(msg);
+      };
 
-btn.addEventListener('click', () => {
-  if (!("Notification" in window)) {
-    alert("Votre navigateur ne supporte pas les notifications.");
-    return;
-  }
+      async function fetchGroupMessages() {
+        const res = await fetch(
+          `https://chatfrx3.onrender.com/group/${groupId}/messages`
+        );
+        const messages = await res.json();
+        messages.forEach((msg) => addMsgToChat(msg));
+        // historique chargé — autoriser les notifications
+        initialLoad = false;
+      }
+      fetchGroupMessages();
 
-  switch (Notification.permission) {
-    case "default":
-      console.log("default");
-      
-      // Jamais répondu → demander la permission
-      Notification.requestPermission().then(permission => {
-        console.log("requestPermission", permission);
-        if (permission === "granted") {
-          new Notification("Merci !", { body: "Vous recevrez nos notifications." });
-        } else {
-          showInstructions();
+      function addMsgToChat(msg) {
+        const div = document.createElement("div");
+        const time = new Date(msg.date);
+        div.innerHTML = `<span class="time">[${time.toLocaleTimeString()}]</span> 
+                       <strong>${msg.pseudo}</strong>: ${msg.text}`;
+        messagesDiv.appendChild(div);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        // Jouer un son et afficher une notification si : historique chargé ET message d'un autre utilisateur ET page non focus
+        try {
+          if (!initialLoad && String(msg.pseudo) !== String(pseudo)) {
+            playNotification();
+            // Afficher une notification du navigateur si permission accordée et page non focus
+            if (
+              "Notification" in window &&
+              Notification.permission === "granted" &&
+              !document.hasFocus()
+            ) {
+              new Notification(`Nouveau message de ${msg.pseudo}`, {
+                body: msg.text,
+                icon: "https://chatfrx3.onrender.com/favicon.ico", // Remplacez par une icône appropriée si disponible
+              });
+            }
+          }
+        } catch (e) {
+          /* ignore */
+        }
+      }
+
+      document.getElementById("chatForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const text = document.getElementById("messageInput").value;
+        if (!text) return;
+        ws.send(JSON.stringify({ pseudo, text, group_id: groupId }));
+        document.getElementById("messageInput").value = "";
+      });
+      //On va integrer la page pour activer les notifications
+
+      const btn = document.getElementById("notifyBtn");
+      const instructions = document.getElementById("instructions");
+      const browserInstructions = document.getElementById(
+        "browser-instructions"
+      );
+
+      function detectBrowser() {
+        const ua = navigator.userAgent;
+        if (ua.includes("Chrome") && !ua.includes("Edg")) return "chrome";
+        if (ua.includes("Firefox")) return "firefox";
+        if (ua.includes("Edg")) return "edge";
+        return "other";
+      }
+
+      btn.addEventListener("click", () => {
+        if (!("Notification" in window)) {
+          alert("Votre navigateur ne supporte pas les notifications.");
+          return;
+        }
+
+        switch (Notification.permission) {
+          case "default":
+            console.log("default");
+
+            // Jamais répondu → demander la permission
+            Notification.requestPermission().then((permission) => {
+              console.log("requestPermission", permission);
+              if (permission === "granted") {
+                new Notification("Merci !", {
+                  body: "Vous recevrez nos notifications.",
+                });
+              } else {
+                showInstructions();
+              }
+            });
+            break;
+
+          case "granted":
+            alert("Les notifications sont déjà activées !");
+            break;
+
+          case "denied":
+            //on demande la permission comme dans le cas "default", mais on sait que l'utilisateur a déjà refusé
+            showInstructions();
+            break;
+        }
+
+        if ("Notification" in window && "serviceWorker" in navigator) {
+          // Vérifie si les notifications et les service workers sont supportés
+          Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+              // Si l'utilisateur a accepté, on enregistre la subscription
+              subscribeUserToPush();
+            } else {
+              console.log("Notifications non autorisées");
+            }
+          });
         }
       });
-      break;
 
-    case "granted":
-      alert("Les notifications sont déjà activées !");
-      break;
+      function showInstructions() {
+        const browser = detectBrowser();
+        let msg = "";
 
-    case "denied":
-      //on demande la permission comme dans le cas "default", mais on sait que l'utilisateur a déjà refusé
-      showInstructions();
-      break;
-  }
-});
+        if (browser === "chrome") {
+          msg =
+            "Activer les notifications manuellement : Allez dans Paramètres → Confidentialité et sécurité → Paramètres du site → Notifications, puis autorisez ce site.";
+        } else if (browser === "firefox") {
+          msg =
+            "Activer les notifications manuellement : Allez dans Options → Vie privée et sécurité → Permissions → Notifications → Paramètres, puis autorisez ce site.";
+        } else if (browser === "edge") {
+          msg =
+            "Activer les notifications manuellement : Allez dans Paramètres → Cookies et autorisations du site → Notifications, puis autorisez ce site.";
+        } else {
+          msg =
+            "Activer les notifications manuellement : Allez dans les paramètres de votre navigateur, cherchez 'Notifications' et autorisez ce site.";
+        }
 
-function showInstructions() {
-  const browser = detectBrowser();
-  let msg = "";
-
-  if (browser === "chrome") {
-    msg = "Activer les notifications manuellement : Allez dans Paramètres → Confidentialité et sécurité → Paramètres du site → Notifications, puis autorisez ce site.";
-  } else if (browser === "firefox") {
-    msg = "Activer les notifications manuellement : Allez dans Options → Vie privée et sécurité → Permissions → Notifications → Paramètres, puis autorisez ce site.";
-  } else if (browser === "edge") {
-    msg = "Activer les notifications manuellement : Allez dans Paramètres → Cookies et autorisations du site → Notifications, puis autorisez ce site.";
-  } else {
-    msg = "Activer les notifications manuellement : Allez dans les paramètres de votre navigateur, cherchez 'Notifications' et autorisez ce site.";
-  }
-
-  browserInstructions.textContent = msg;
-  instructions.style.display = "block";
-}
-  </script>
-  <!--on va ajouter un btn pour acceder a la page pour activer les notifications-->
- <!--<a href="/activer_notifes.html" target="_blank" style="color: red;">🔔 Activer les notifications</a>-->
-</body>
+        browserInstructions.textContent = msg;
+        instructions.style.display = "block";
+      }
+      function subscribeUserToPush() {
+        navigator.serviceWorker.ready.then((registration) => {
+          // Enregistrer l'abonnement aux notifications push
+          registration.pushManager
+            .subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlB64ToUint8Array(
+                "BOPWzt_qGiIn1zlY705YjJoB37kolNprqlIxemExyY510sLN9rPb-83cfj4_VkLbBpWxzINyAzb1yZVr-_fNvvk"
+              ), // Clé publique VAPID
+            })
+            .then((subscription) => {
+              console.log("Utilisateur abonné:", subscription);
+              // Envoie la subscription au serveur
+              sendSubscriptionToServer(subscription);
+            })
+            .catch((err) => {
+              console.error("Impossible de s'abonner", err);
+            });
+        });
+      }
+      function sendSubscriptionToServer(subscription) {
+        fetch("/save-subscription", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(subscription),
+        })
+          .then((response) => {
+            if (response.ok) {
+              console.log("Subscription enregistrée sur le serveur !");
+            }
+          })
+          .catch((error) => {
+            console.error(
+              "Erreur lors de l'enregistrement de la subscription:",
+              error
+            );
+          });
+      }
+    </script>
+    <!--on va ajouter un btn pour acceder a la page pour activer les notifications-->
+    <!--<a href="/activer_notifes.html" target="_blank" style="color: red;">🔔 Activer les notifications</a>-->
+  </body>
 </html>
