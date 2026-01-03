@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/icon-192.png">
     <meta charset="UTF-8">
     <title>Connexion - ChatFRX-3</title>
     <link rel="stylesheet" href="style.css">
@@ -121,5 +123,15 @@
     <p>Pas encore inscrit ? <a href="create-user.html">Créer un compte</a></p>
 
     <script src="login.js"></script>
+    <script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js")
+      .then(() => console.log("Service Worker enregistré"))
+      .catch(err => console.error("SW erreur", err));
+  });
+}
+</script>
+
 </body>
 </html>

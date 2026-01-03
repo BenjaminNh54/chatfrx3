@@ -339,6 +339,44 @@ const server = http.createServer(async (req, res) => {
       fs.createReadStream(filePath).pipe(res);
     });
   }
+    else if (req.method === 'GET' && req.url === '/service-worker.js') {
+    const filePath = path.join(__dirname, 'service-worker.js');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });  
+        res.end('service-worker.js introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'application/javascript' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  }
+    else if (req.method === 'GET' && req.url === '/manifest.json') {
+    const filePath = path.join(__dirname, 'manifest.json');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });  
+        res.end('manifest.json introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  }
+  //on va servir le dossier icons
+    else if (req.method === 'GET' && req.url.startsWith('/icons/')) {
+    const iconName = req.url.split('/').pop();
+    const filePath = path.join(__dirname, 'icons', iconName);
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end(`${iconName} introuvable`);
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'image/png' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  }
   else if (req.method === 'GET' && (req.url === '/' || req.url === '/login' || req.url === '/login.html')) {
     const filePath = path.join(__dirname, 'login.html');
     fs.stat(filePath, (err) => {
