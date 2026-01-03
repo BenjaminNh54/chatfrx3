@@ -114,6 +114,35 @@
     const messagesDiv = document.getElementById('messages');
     const ws = new WebSocket('wss://chatfrx3.onrender.com');
 
+    // Ne pas jouer de son pendant le chargement de l'historique
+    let initialLoad = true;
+
+    // Demander la permission pour les notifications du navigateur
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    // Petit beep de notification via WebAudio — pas besoin de fichier externe
+    function playNotification() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = 880; // A6
+        o.connect(g);
+        g.connect(ctx.destination);
+        g.gain.setValueAtTime(0, ctx.currentTime);
+        g.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.001);
+        o.start();
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+        setTimeout(() => { o.stop(); ctx.close(); }, 700);
+      } catch (e) {
+        // fallback: essayer Audio simple
+        try { new Audio().play(); } catch (__) {}
+      }
+    }
+
     ws.onopen = () => console.log('✅ Connecté au chat du groupe');
 
     ws.onmessage = (event) => {
@@ -125,6 +154,8 @@
       const res = await fetch(`https://chatfrx3.onrender.com/group/${groupId}/messages`);
       const messages = await res.json();
       messages.forEach(msg => addMsgToChat(msg));
+      // historique chargé — autoriser les notifications
+      initialLoad = false;
     }
     fetchGroupMessages();
 
@@ -135,6 +166,19 @@
                        <strong>${msg.pseudo}</strong>: ${msg.text}`;
       messagesDiv.appendChild(div);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      // Jouer un son et afficher une notification si : historique chargé ET message d'un autre utilisateur ET page non focus
+      try {
+        if (!initialLoad && String(msg.pseudo) !== String(pseudo)) {
+          playNotification();
+          // Afficher une notification du navigateur si permission accordée et page non focus
+          if ('Notification' in window && Notification.permission === 'granted' && !document.hasFocus()) {
+            new Notification(`Nouveau message de ${msg.pseudo}`, {
+              body: msg.text,
+              icon: 'https://chatfrx3.onrender.com/favicon.ico' // Remplacez par une icône appropriée si disponible
+            });
+          }
+        }
+      } catch (e) { /* ignore */ }
     }
 
     document.getElementById('chatForm').addEventListener('submit', (e) => {

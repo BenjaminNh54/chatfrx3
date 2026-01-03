@@ -517,7 +517,7 @@ wss.on('connection', async (ws) => {
 });
 
 // Render fournit le port via process.env.PORT
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 80;
 server.listen(PORT, () => {
   console.log(`Serveur WebSocket lancé sur le port ${PORT}`);
 });
