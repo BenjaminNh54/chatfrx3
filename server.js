@@ -470,6 +470,8 @@ const server = http.createServer(async (req, res) => {
     let body = "";
     req.on("data", c => body += c);
     req.on("end", () => {
+      console.log("POST save-subscription");
+
       const sub = JSON.parse(body);
       pushSubscriptions.push(sub);
       res.writeHead(201);
@@ -581,6 +583,8 @@ wss.on('connection', async (ws) => {
       }
 
       // Diffuser à tous les clients
+      console.log("Diffusion a tous les clients");
+
       wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify({
@@ -591,8 +595,12 @@ wss.on('connection', async (ws) => {
           }));
         }
       });
+      console.log("Message envoyé à tous les clients", pushSubscriptions);
+
       // Envoyer des notifications push à tous les abonnés
       pushSubscriptions.forEach(sub => {
+        console.log("Sending push notification to:", sub.endpoint);
+
         webpush.sendNotification(sub, JSON.stringify({
           title: "Nouveau message",
           body: `${pseudo} : ${text}`,
