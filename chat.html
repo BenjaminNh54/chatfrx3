@@ -252,6 +252,9 @@
                 new Notification("Merci !", {
                   body: "Vous recevrez nos notifications.",
                 });
+
+                // Si l'utilisateur a accepté, on enregistre la subscription
+                if ("serviceWorker" in navigator) subscribeUserToPush();
               } else {
                 showInstructions();
               }
@@ -266,18 +269,6 @@
             //on demande la permission comme dans le cas "default", mais on sait que l'utilisateur a déjà refusé
             showInstructions();
             break;
-        }
-
-        if ("Notification" in window && "serviceWorker" in navigator) {
-          // Vérifie si les notifications et les service workers sont supportés
-          Notification.requestPermission().then((permission) => {
-            if (permission === "granted") {
-              // Si l'utilisateur a accepté, on enregistre la subscription
-              subscribeUserToPush();
-            } else {
-              console.log("Notifications non autorisées");
-            }
-          });
         }
       });
 
@@ -302,6 +293,24 @@
         browserInstructions.textContent = msg;
         instructions.style.display = "block";
       }
+      // Fonction pour convertir la clé VAPID en Uint8Array
+      function urlB64ToUint8Array(base64String) {
+        const padding = "=".repeat((4 - (base64String.length % 4)) % 4); // Ajout du padding nécessaire
+        const base64 = (base64String + padding)
+          .replace(/\-/g, "+") // Remplacer les caractères URL-safe par leur version standard
+          .replace(/_/g, "/");
+
+        const rawData = atob(base64); // Décoder la chaîne base64
+        const outputArray = new Uint8Array(rawData.length);
+
+        // Convertir chaque caractère décodé en un octet
+        for (let i = 0; i < rawData.length; ++i) {
+          outputArray[i] = rawData.charCodeAt(i);
+        }
+
+        return outputArray;
+      }
+
       function subscribeUserToPush() {
         navigator.serviceWorker.ready.then((registration) => {
           // Enregistrer l'abonnement aux notifications push
@@ -323,6 +332,8 @@
         });
       }
       function sendSubscriptionToServer(subscription) {
+        console.log("Sending subscription to server:", subscription);
+
         fetch("/save-subscription", {
           method: "POST",
           headers: {
