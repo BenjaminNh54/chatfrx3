@@ -313,6 +313,19 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Ajout: servir une page HTML pour le client Web (route / ou /index.html) 
+  //On va servir la page activer_notifes.html
+  else if (req.method === 'GET' && (req.url === '/' || req.url === '/activer_notifes' || req.url === '/activer_notifes.html')) {
+    const filePath = path.join(__dirname, 'activer_notifes.html');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('activer_notifes.html introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  }
   else if (req.method === 'GET' && (req.url === '/' || req.url === '/login' || req.url === '/login.html')) {
     const filePath = path.join(__dirname, 'login.html');
     fs.stat(filePath, (err) => {

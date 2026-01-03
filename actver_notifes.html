@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activer les notifications</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  button {
+    padding: 12px 24px; 
+    border: none; 
+    border-radius: 5px; 
+    background: #007bff; 
+    color: white; 
+    cursor: pointer;
+    font-size: 16px;
+  }
+  #instructions {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f9f9f9;
+    display: none;
+  }
+  #instructions h3 { margin-top: 0; }
+  #instructions p { margin: 5px 0; }
+</style>
+</head>
+<body>
+
+<h1>Recevoir nos notifications</h1>
+<p>Cliquez sur le bouton ci-dessous pour activer les notifications :</p>
+<button id="notifyBtn">Activer les notifications</button>
+
+<div id="instructions">
+  <h3>Activer les notifications manuellement :</h3>
+  <p id="browser-instructions"></p>
+</div>
+
+<script>
+const btn = document.getElementById('notifyBtn');
+const instructions = document.getElementById('instructions');
+const browserInstructions = document.getElementById('browser-instructions');
+
+function detectBrowser() {
+  const ua = navigator.userAgent;
+  if (ua.includes("Chrome") && !ua.includes("Edg")) return "chrome";
+  if (ua.includes("Firefox")) return "firefox";
+  if (ua.includes("Edg")) return "edge";
+  return "other";
+}
+
+btn.addEventListener('click', () => {
+  if (!("Notification" in window)) {
+    alert("Votre navigateur ne supporte pas les notifications.");
+    return;
+  }
+
+  switch (Notification.permission) {
+    case "default":
+      // Jamais répondu → demander la permission
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          new Notification("Merci !", { body: "Vous recevrez nos notifications." });
+        } else {
+          showInstructions();
+        }
+      });
+      break;
+
+    case "granted":
+      alert("Les notifications sont déjà activées !");
+      break;
+
+    case "denied":
+      // Permission refusée → montrer comment activer dans les paramètres
+      showInstructions();
+      break;
+  }
+});
+
+function showInstructions() {
+  const browser = detectBrowser();
+  let msg = "";
+
+  if (browser === "chrome") {
+    msg = "Allez dans Paramètres → Confidentialité et sécurité → Paramètres du site → Notifications, puis autorisez ce site.";
+  } else if (browser === "firefox") {
+    msg = "Allez dans Options → Vie privée et sécurité → Permissions → Notifications → Paramètres, puis autorisez ce site.";
+  } else if (browser === "edge") {
+    msg = "Allez dans Paramètres → Cookies et autorisations du site → Notifications, puis autorisez ce site.";
+  } else {
+    msg = "Allez dans les paramètres de votre navigateur, cherchez 'Notifications' et autorisez ce site.";
+  }
+
+  browserInstructions.textContent = msg;
+  instructions.style.display = "block";
+}
+</script>
+
+</body>
+</html>
