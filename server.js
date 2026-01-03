@@ -314,7 +314,7 @@ const server = http.createServer(async (req, res) => {
 
   // Ajout: servir une page HTML pour le client Web (route / ou /index.html) 
   //On va servir la page activer_notifes.html
-  else if (req.method === 'GET' && (req.url === '/' || req.url === '/activer_notifes' || req.url === '/activer_notifes.html')) {
+  else if (req.method === 'GET' && (req.url === '/activer_notifes' || req.url === '/activer_notifes.html')) {
     const filePath = path.join(__dirname, 'activer_notifes.html');
     fs.stat(filePath, (err) => {
       if (err) {
