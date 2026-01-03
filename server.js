@@ -326,6 +326,19 @@ const server = http.createServer(async (req, res) => {
       fs.createReadStream(filePath).pipe(res);
     });
   }
+  //on va servir aussi la favicon.ico
+  else if (req.method === 'GET' && req.url === '/favicon.ico') {
+    const filePath = path.join(__dirname, 'favicon.ico');
+    fs.stat(filePath, (err) => {
+      if (err) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });  
+        res.end('favicon.ico introuvable');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'image/x-icon' });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  }
   else if (req.method === 'GET' && (req.url === '/' || req.url === '/login' || req.url === '/login.html')) {
     const filePath = path.join(__dirname, 'login.html');
     fs.stat(filePath, (err) => {
@@ -540,6 +553,19 @@ const RENDER_URL = "https://chatfrx3.onrender.com/login.html"; // <-- remplace p
 
 setInterval(() => {
   https.get(RENDER_URL, (res) => {
+    console.log("Ping anti-sleep:", res.statusCode);
+  }).on("error", (err) => {
+    console.error("Erreur ping anti-sleep:", err.message);
+  });
+}, 5 * 60 * 1000); // toutes les 5 minutes
+
+//https://chatfrx3-a-morpion.onrender.com/
+
+// ===== ANTI-SLEEP (Keep-Alive) =====
+const RENDER_URL2 = "https://chatfrx3-a-morpion.onrender.com/"; // <-- remplace par ton URL publique Render
+
+setInterval(() => {
+  https.get(RENDER_URL2, (res) => {
     console.log("Ping anti-sleep:", res.statusCode);
   }).on("error", (err) => {
     console.error("Erreur ping anti-sleep:", err.message);

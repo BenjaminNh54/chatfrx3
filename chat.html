@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>💬 Chat du groupe</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <title>Chat du groupe</title>
   <style>
     body {
       background: #0a1a2f; /* bleu foncé élégant */
@@ -104,6 +105,14 @@
     <button type="submit">Envoyer</button>
     <a href="https://chatfrx3-a-morpion.onrender.com/" target="_blank">🎮 Aller au morpion</a>
   </form>
+  <hr/>
+  <h1>Recevoir vos messages en notifications</h1>
+<p>Cliquez sur le bouton ci-dessous pour activer les notifications :</p>
+<button id="notifyBtn">Activer les notifications</button>
+
+<div id="instructions">
+  <p id="browser-instructions"></p>
+</div>
 
   <script>
     const pseudo = localStorage.getItem('userId');
@@ -117,10 +126,6 @@
     // Ne pas jouer de son pendant le chargement de l'historique
     let initialLoad = true;
 
-    // Demander la permission pour les notifications du navigateur
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
 
     // Petit beep de notification via WebAudio — pas besoin de fichier externe
     function playNotification() {
@@ -188,8 +193,71 @@
       ws.send(JSON.stringify({ pseudo, text, group_id: groupId }));
       document.getElementById('messageInput').value = '';
     });
+    //On va integrer la page pour activer les notifications
+ 
+const btn = document.getElementById('notifyBtn');
+const instructions = document.getElementById('instructions');
+const browserInstructions = document.getElementById('browser-instructions');
+
+function detectBrowser() {
+  const ua = navigator.userAgent;
+  if (ua.includes("Chrome") && !ua.includes("Edg")) return "chrome";
+  if (ua.includes("Firefox")) return "firefox";
+  if (ua.includes("Edg")) return "edge";
+  return "other";
+}
+
+btn.addEventListener('click', () => {
+  if (!("Notification" in window)) {
+    alert("Votre navigateur ne supporte pas les notifications.");
+    return;
+  }
+
+  switch (Notification.permission) {
+    case "default":
+      console.log("default");
+      
+      // Jamais répondu → demander la permission
+      Notification.requestPermission().then(permission => {
+        console.log("requestPermission", permission);
+        if (permission === "granted") {
+          new Notification("Merci !", { body: "Vous recevrez nos notifications." });
+        } else {
+          showInstructions();
+        }
+      });
+      break;
+
+    case "granted":
+      alert("Les notifications sont déjà activées !");
+      break;
+
+    case "denied":
+      //on demande la permission comme dans le cas "default", mais on sait que l'utilisateur a déjà refusé
+      showInstructions();
+      break;
+  }
+});
+
+function showInstructions() {
+  const browser = detectBrowser();
+  let msg = "";
+
+  if (browser === "chrome") {
+    msg = "Activer les notifications manuellement : Allez dans Paramètres → Confidentialité et sécurité → Paramètres du site → Notifications, puis autorisez ce site.";
+  } else if (browser === "firefox") {
+    msg = "Activer les notifications manuellement : Allez dans Options → Vie privée et sécurité → Permissions → Notifications → Paramètres, puis autorisez ce site.";
+  } else if (browser === "edge") {
+    msg = "Activer les notifications manuellement : Allez dans Paramètres → Cookies et autorisations du site → Notifications, puis autorisez ce site.";
+  } else {
+    msg = "Activer les notifications manuellement : Allez dans les paramètres de votre navigateur, cherchez 'Notifications' et autorisez ce site.";
+  }
+
+  browserInstructions.textContent = msg;
+  instructions.style.display = "block";
+}
   </script>
   <!--on va ajouter un btn pour acceder a la page pour activer les notifications-->
- <a href="/activer_notifes.html" target="_blank" style="color: red;">🔔 Activer les notifications</a>
+ <!--<a href="/activer_notifes.html" target="_blank" style="color: red;">🔔 Activer les notifications</a>-->
 </body>
 </html>
