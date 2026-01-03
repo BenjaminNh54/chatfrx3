@@ -10,7 +10,17 @@ const path = require('path');
 const supabaseUrl = 'https://osqzuptinfbahmfncjgl.supabase.co';
 const supabaseKey = 'sb_secret_b4tZZmSvmT-vze7BvvNzhQ_zJFULUxt'; // ta clé
 const supabase = createClient(supabaseUrl, supabaseKey);
+//Web Push VAPID keys setup
+const webpush = require("web-push");
+webpush.setVapidDetails(
+  "mailto:admin@chatfrx3.com",
+  "BOPWzt_qGiIn1zlY705YjJoB37kolNprqlIxemExyY510sLN9rPb-83cfj4_VkLbBpWxzINyAzb1yZVr-_fNvvk",
+  "84t1Z69isyOrs5dzjNpzgyLWfZWvDBx40TrPB2kX-NE"
+);
+
 // ===========================
+
+let pushSubscriptions = [];
 
 // Créer un serveur HTTP basique avec gestion POST /user
 const server = http.createServer(async (req, res) => {
@@ -331,7 +341,7 @@ const server = http.createServer(async (req, res) => {
     const filePath = path.join(__dirname, 'favicon.ico');
     fs.stat(filePath, (err) => {
       if (err) {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });  
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
         res.end('favicon.ico introuvable');
         return;
       }
@@ -339,11 +349,11 @@ const server = http.createServer(async (req, res) => {
       fs.createReadStream(filePath).pipe(res);
     });
   }
-    else if (req.method === 'GET' && req.url === '/service-worker.js') {
+  else if (req.method === 'GET' && req.url === '/service-worker.js') {
     const filePath = path.join(__dirname, 'service-worker.js');
     fs.stat(filePath, (err) => {
       if (err) {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });  
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
         res.end('service-worker.js introuvable');
         return;
       }
@@ -351,11 +361,11 @@ const server = http.createServer(async (req, res) => {
       fs.createReadStream(filePath).pipe(res);
     });
   }
-    else if (req.method === 'GET' && req.url === '/manifest.json') {
+  else if (req.method === 'GET' && req.url === '/manifest.json') {
     const filePath = path.join(__dirname, 'manifest.json');
     fs.stat(filePath, (err) => {
       if (err) {
-        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });  
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
         res.end('manifest.json introuvable');
         return;
       }
@@ -364,7 +374,7 @@ const server = http.createServer(async (req, res) => {
     });
   }
   //on va servir le dossier icons
-    else if (req.method === 'GET' && req.url.startsWith('/icons/')) {
+  else if (req.method === 'GET' && req.url.startsWith('/icons/')) {
     const iconName = req.url.split('/').pop();
     const filePath = path.join(__dirname, 'icons', iconName);
     fs.stat(filePath, (err) => {
@@ -389,7 +399,7 @@ const server = http.createServer(async (req, res) => {
       fs.createReadStream(filePath).pipe(res);
     });
   }
-    else if (req.method === 'GET' && (req.url === '/' || req.url === '/login' || req.url === '/login.js')) {
+  else if (req.method === 'GET' && (req.url === '/' || req.url === '/login' || req.url === '/login.js')) {
     const filePath = path.join(__dirname, 'login.js');
     fs.stat(filePath, (err) => {
       if (err) {
@@ -412,7 +422,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       fs.createReadStream(filePath).pipe(res);
     });
-  }else if (req.method === 'GET' && (req.url === '/group' || req.url === '/group.js')) {
+  } else if (req.method === 'GET' && (req.url === '/group' || req.url === '/group.js')) {
     const filePath = path.join(__dirname, 'group.js');
     fs.stat(filePath, (err) => {
       if (err) {
@@ -423,7 +433,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
       fs.createReadStream(filePath).pipe(res);
     });
-  }  else if (req.method === 'GET' && (req.url === '/create-user' || req.url === '/create-user.html')) {
+  } else if (req.method === 'GET' && (req.url === '/create-user' || req.url === '/create-user.html')) {
     const filePath = path.join(__dirname, 'create-user.html');
     fs.stat(filePath, (err) => {
       if (err) {
@@ -456,11 +466,23 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       fs.createReadStream(filePath).pipe(res);
     });
-  } else {
+  } else if (req.method === "POST" && req.url === "/save-subscription") {
+    let body = "";
+    req.on("data", c => body += c);
+    req.on("end", () => {
+      const sub = JSON.parse(body);
+      pushSubscriptions.push(sub);
+      res.writeHead(201);
+      res.end();
+    });
+    return;
+  }
+  else {
     res.writeHead(200);
     res.end("Serveur de chat en ligne via Render + Supabase");
 
   }
+
 });
 
 
@@ -568,6 +590,14 @@ wss.on('connection', async (ws) => {
             group_id: savedMsg.id_group || null
           }));
         }
+      });
+      // Envoyer des notifications push à tous les abonnés
+      pushSubscriptions.forEach(sub => {
+        webpush.sendNotification(sub, JSON.stringify({
+          title: "Nouveau message",
+          body: `${pseudo} : ${text}`,
+          url: "/chat"
+        })).catch(err => console.error("Push erreur", err));
       });
 
     } catch (err) {
