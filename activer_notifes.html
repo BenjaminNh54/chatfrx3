@@ -74,7 +74,7 @@ btn.addEventListener('click', () => {
       break;
 
     case "denied":
-      // Permission refusée → montrer comment activer dans les paramètres
+      //on demande la permission comme dans le cas "default", mais on sait que l'utilisateur a déjà refusé
       showInstructions();
       break;
   }
