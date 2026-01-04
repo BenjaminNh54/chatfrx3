@@ -177,12 +177,19 @@
             .catch((err) => console.error("SW erreur", err));
         });
       }
+
+      // Vérifier si l'app est déjà installée
+      window.addEventListener("appinstalled", () => {
+        console.log("PWA installée");
+      });
+
       let deferredPrompt;
       const installPopup = document.getElementById("install-popup");
       const installButton = document.getElementById("install-btn");
 
       // Écouter l'événement beforeinstallprompt
       window.addEventListener("beforeinstallprompt", (e) => {
+        console.log("beforeinstallprompt event fired");
         // Empêcher le navigateur d'afficher son propre prompt
         e.preventDefault();
 

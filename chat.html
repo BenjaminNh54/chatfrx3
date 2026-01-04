@@ -193,6 +193,19 @@
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         // Jouer un son et afficher une notification si : historique chargé ET message d'un autre utilisateur ET page non focus
         try {
+          console.log("Checking notification conditions:");
+          console.log("initialLoad:", initialLoad);
+          console.log(
+            "msg.pseudo:",
+            msg.pseudo,
+            "pseudo:",
+            pseudo,
+            "different:",
+            String(msg.pseudo) !== String(pseudo)
+          );
+          console.log("Notification supported:", "Notification" in window);
+          console.log("Permission:", Notification.permission);
+          console.log("Document has focus:", document.hasFocus());
           if (!initialLoad && String(msg.pseudo) !== String(pseudo)) {
             playNotification();
             // Afficher une notification du navigateur si permission accordée et page non focus
@@ -201,14 +214,20 @@
               Notification.permission === "granted" &&
               !document.hasFocus()
             ) {
+              console.log("Showing notification for:", msg.pseudo, msg.text);
               new Notification(`Nouveau message de ${msg.pseudo}`, {
                 body: msg.text,
-                icon: "https://chatfrx3.onrender.com/favicon.ico", // Remplacez par une icône appropriée si disponible
+                icon: "/icons/icon-192.png",
+                requireInteraction: true, // Garde la notification ouverte jusqu'à interaction
+                silent: false, // Joue un son si possible
+                tag: "chat-message", // Évite les doublons
               });
+            } else {
+              console.log("Notification not shown: conditions not met");
             }
           }
         } catch (e) {
-          /* ignore */
+          console.error("Error in notification:", e);
         }
       }
 
