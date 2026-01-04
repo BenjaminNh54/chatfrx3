@@ -135,7 +135,11 @@
       document.getElementById("groupName").textContent = groupName;
 
       const messagesDiv = document.getElementById("messages");
-      const ws = new WebSocket(`ws://${window.location.host}`); // Connexion WebSocket au serveur
+      const ws = new WebSocket(
+        `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${
+          window.location.host
+        }`
+      ); // Connexion WebSocket au serveur
 
       // Ne pas jouer de son pendant le chargement de l'historique
       let initialLoad = true;
