@@ -24,6 +24,10 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
+  // Ne pas intercepter les requêtes cross-origin pour éviter les erreurs CORS
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then(resp => resp || fetch(event.request))
   );

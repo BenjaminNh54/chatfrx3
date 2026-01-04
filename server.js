@@ -14,12 +14,32 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 const webpush = require("web-push");
 webpush.setVapidDetails(
   "mailto:admin@chatfrx3.com",
-  "BOPWzt_qGiIn1zlY705YjJoB37kolNprqlIxemExyY510sLN9rPb-83cfj4_VkLbBpWxzINyAzb1yZVr-_fNvvk",
-  "84t1Z69isyOrs5dzjNpzgyLWfZWvDBx40TrPB2kX-NE"
+  "BIBb8ugBygQnPnp3UeQxhfd-x3urTCtSe1ai4lIu8DZ5jm-ypzYkqCn9U9R8EH2-oZi6fz8hl3AeW0OuPOzdUWQ",
+  "g9zJq9lzjcDG2UibTR7F02ztLZIHL_Po2u88pvbyjtU"
 );
 
 // ===========================
 let pushSubscriptions = [];
+
+// Fonction pour charger les abonnements depuis la DB
+async function loadPushSubscriptions() {
+  try {
+    const { data, error } = await supabase
+      .from('push_subscriptions')
+      .select('user_id, subscription');
+    if (error) {
+      console.error('Erreur chargement push subscriptions:', error);
+    } else {
+      pushSubscriptions = data; // Maintenant array de {user_id, subscription}
+      console.log(`${pushSubscriptions.length} abonnements push chargés`);
+    }
+  } catch (err) {
+    console.error('Erreur loadPushSubscriptions:', err);
+  }
+}
+
+// Charger au démarrage
+loadPushSubscriptions();
 
 // Créer un serveur HTTP basique avec gestion POST /user
 const server = http.createServer(async (req, res) => {
@@ -468,13 +488,31 @@ const server = http.createServer(async (req, res) => {
   } else if (req.method === "POST" && req.url === "/save-subscription") {
     let body = "";
     req.on("data", c => body += c);
-    req.on("end", () => {
-      console.log("POST save-subscription");
+    req.on("end", async () => {
+      try {
+        const { subscription, userId } = JSON.parse(body);
+        console.log("POST save-subscription for user:", userId);
 
-      const sub = JSON.parse(body);
-      pushSubscriptions.push(sub);
-      res.writeHead(201);
-      res.end();
+        // Insérer dans la DB
+        const { error } = await supabase
+          .from('push_subscriptions')
+          .insert([{ user_id: parseInt(userId), subscription }]);
+
+        if (error) {
+          console.error('Erreur insertion subscription:', error);
+          res.writeHead(500);
+          res.end();
+        } else {
+          // Aussi ajouter en mémoire pour la session
+          pushSubscriptions.push(subscription);
+          res.writeHead(201);
+          res.end();
+        }
+      } catch (err) {
+        console.error('Erreur save-subscription:', err);
+        res.writeHead(400);
+        res.end();
+      }
     });
     return;
   }
@@ -588,6 +626,7 @@ wss.on('connection', async (ws) => {
         if (client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify({
             pseudo: savedMsg.user,
+            user_id: savedMsg.id_user,
             text: savedMsg.message,
             date: savedMsg.created_at,
             group_id: savedMsg.id_group || null
@@ -596,19 +635,40 @@ wss.on('connection', async (ws) => {
       });
       console.log("Message envoyé à tous les clients", pushSubscriptions);
 
-      // Envoyer des notifications push à tous les abonnés
-      // Temporairement désactivé pour tester les notifs locales
-      /*
-      pushSubscriptions.forEach(sub => {
-        console.log("Sending push notification to:", sub.endpoint);
+      // Envoyer des notifications push aux abonnés du groupe (si group_id existe)
+      if (savedMsg.id_group) {
+        // Récupérer les membres du groupe
+        const { data: members, error: memError } = await supabase
+          .from('group_members')
+          .select('user_id')
+          .eq('group_id', savedMsg.id_group);
 
-        webpush.sendNotification(sub, JSON.stringify({
-          title: "Nouveau message",
-          body: `${pseudo} : ${text}`,
-          url: "/chat"
-        })).catch(err => console.error("Push erreur", err));
-      });
-      */
+        if (!memError && members) {
+          const memberIds = members.map(m => m.user_id);
+          // Filtrer les abonnements des membres
+          const relevantSubs = pushSubscriptions.filter(subObj => memberIds.includes(subObj.user_id) && subObj.user_id !== parseInt(pseudo));
+          relevantSubs.forEach(subObj => {
+            console.log("Sending GROUP push to:", subObj.user_id);
+            webpush.sendNotification(subObj.subscription, JSON.stringify({
+              title: "[Push] Nouveau message dans le groupe",
+              body: `${savedMsg.user} : ${text}`,
+              url: "/chat"
+            })).catch(err => console.error("Push erreur", err));
+          });
+        }
+      } else {
+        // Pour les messages globaux, envoyer à tous sauf l'expéditeur
+        pushSubscriptions.forEach(subObj => {
+          if (subObj.user_id !== parseInt(pseudo)) {
+            console.log("Sending GLOBAL push to:", subObj.user_id);
+            webpush.sendNotification(subObj.subscription, JSON.stringify({
+              title: "[Push] Nouveau message",
+              body: `${savedMsg.user} : ${text}`,
+              url: "/chat"
+            })).catch(err => console.error("Push erreur", err));
+          }
+        });
+      }
 
     } catch (err) {
       console.error('Erreur traitement message:', err);
