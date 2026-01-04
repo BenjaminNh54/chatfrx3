@@ -1,0 +1,1 @@
+Ce site est officiellement publique et stable avec plein de featurs il est accessible depuis "https://is.gd/chatfrx3" creez vous un compte puis demandez a rejoindre le group "new_users" et je vous pourrez parler a un administrateur du site et surtout s'il vous plait faites de la pub <3
