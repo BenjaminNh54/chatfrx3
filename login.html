@@ -112,9 +112,37 @@
     <div class="logo">💬 ChatFRX la v3</div>
     <h2>Connexion</h2>
     <!-- popup d'installation -->
-    <div id="install-popup" style="display: none">
-      <p>Installez notre application pour une meilleure expérience !</p>
-      <button id="install-btn">Installer</button>
+    <!--On va faire un rai popup comme les vrais sites !-->
+    <div
+      id="install-popup"
+      style="
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fff;
+        padding: 15px 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+      "
+    >
+      <span>Installer ChatFRX-3 sur votre appareil ?</span>
+      <button
+        id="install-btn"
+        style="
+          margin-left: 15px;
+          padding: 8px 12px;
+          background: #007bff;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+        "
+      >
+        Installer
+      </button>
     </div>
     <form id="loginForm">
       <label for="name">Nom d'utilisateur :</label>

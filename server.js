@@ -19,8 +19,8 @@ webpush.setVapidDetails(
 );
 
 // ===========================
-
-let pushSubscriptions = [];*/
+*/
+let pushSubscriptions = [];
 
 // Créer un serveur HTTP basique avec gestion POST /user
 const server = http.createServer(async (req, res) => {
