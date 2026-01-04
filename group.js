@@ -11,7 +11,7 @@ const SERVER_URL = 'https://chatfrx3.onrender.com';
 
 // Création d'un groupe
 const createGroupForm = document.getElementById('createGroupForm');
-createGroupForm.addEventListener('submit', async function(e) {
+createGroupForm.addEventListener('submit', async function (e) {
     e.preventDefault();
     const userId = localStorage.getItem('userId');
 
@@ -73,16 +73,16 @@ async function editGroup(group) {
         const groups = await res.json();
         return groups
     }
-    
-    fetchGroupRequests(group.id).then(response=>{
+
+    fetchGroupRequests(group.id).then(response => {
         groupRequests = response.requests;
         console.log('groupRequests', groupRequests);
-        
+
         renderRequests();
     });
 }
 
-var groupRequests=[];
+var groupRequests = [];
 const reqContainer = document.getElementById('requestsContainer');
 
 function renderRequests() {
@@ -135,35 +135,35 @@ async function rejectRequest(index) {
 
     // Notifier le serveur pour supprimer la demande
     try {
-       const response = await fetch(`${SERVER_URL}/group/request`, {
+        const response = await fetch(`${SERVER_URL}/group/request`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ requestId: req.id })
-        }); 
-    
+        });
+
         if (response.ok) {
             alert('Demande rejetée !');
             groupRequests.splice(index, 1); // retire la demande
-            renderRequests();   
+            renderRequests();
         } else {
             alert('Erreur rejet demande');
         }
     } catch (error) {
         console.error('Erreur lors de la suppression de la demande:', error);
     }
-    
+
 
 
 
 }
 
-document.getElementById('requestGroupForm').onsubmit = async function(e) {
+document.getElementById('requestGroupForm').onsubmit = async function (e) {
     e.preventDefault();
     const groupName = document.getElementById('requestGroupName').value;
     const response = await fetch(`${SERVER_URL}/group/request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({groupName,  userId: localStorage.getItem('userId') })
+        body: JSON.stringify({ groupName, userId: localStorage.getItem('userId') })
     });
     if (response.ok) {
         alert('Demande envoyée à l\'admin !');
@@ -200,7 +200,7 @@ function selectGroup(group) {
 
         // Redirection vers la page de chat
         window.location.href = 'chat.html';
-        
+
     };
 }
 

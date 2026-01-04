@@ -135,7 +135,7 @@
       document.getElementById("groupName").textContent = groupName;
 
       const messagesDiv = document.getElementById("messages");
-      const ws = new WebSocket("wss://chatfrx3.onrender.com");
+      const ws = new WebSocket("wss://chatfrx3.onrender.com"); // Connexion WebSocket au serveur
 
       // Ne pas jouer de son pendant le chargement de l'historique
       let initialLoad = true;
@@ -203,7 +203,7 @@
             ) {
               new Notification(`Nouveau message de ${msg.pseudo}`, {
                 body: msg.text,
-                icon: "https://chatfrx3.onrender.com/favicon.ico", // Remplacez par une icône appropriée si disponible
+                icon: "https://chatfrx3.onrender.com/favicon.ico | http://localhost:80/favicon.ico", // Remplacez par une icône appropriée si disponible
               });
             }
           }

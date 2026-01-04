@@ -1,137 +1,190 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <link rel="manifest" href="/manifest.json">
-  <link rel="icon" href="/icons/icon-192.png">
-    <meta charset="UTF-8">
+  <head>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="/icons/icon-192.png" />
+    <meta charset="UTF-8" />
     <title>Connexion - ChatFRX-3</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <style>
-        body {
-            background: linear-gradient(135deg, #007bff, #00c6ff);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
+      body {
+        background: linear-gradient(135deg, #007bff, #00c6ff);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
 
-        h2 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 2em;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
+      h2 {
+        color: white;
+        margin-bottom: 20px;
+        font-size: 2em;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
 
-        form {
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            width: 320px;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
+      form {
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        width: 320px;
+        text-align: center;
+        transition: transform 0.3s ease;
+      }
 
-        form:hover {
-            transform: scale(1.02);
-        }
+      form:hover {
+        transform: scale(1.02);
+      }
 
-        label {
-            display: block;
-            margin-top: 10px;
-            text-align: left;
-            font-weight: 600;
-            color: #333;
-        }
+      label {
+        display: block;
+        margin-top: 10px;
+        text-align: left;
+        font-weight: 600;
+        color: #333;
+      }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            outline: none;
-            transition: 0.3s;
-        }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        outline: none;
+        transition: 0.3s;
+      }
 
-        input:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 6px #007bff55;
-        }
+      input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 6px #007bff55;
+      }
 
-        button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 20px;
-            background: linear-gradient(135deg, #007bff, #00c6ff);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+      button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 20px;
+        background: linear-gradient(135deg, #007bff, #00c6ff);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+      }
 
-        button:hover {
-            background: linear-gradient(135deg, #0056d2, #00aaff);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
+      button:hover {
+        background: linear-gradient(135deg, #0056d2, #00aaff);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
 
-        p {
-            margin-top: 20px;
-            color: white;
-            font-size: 1em;
-        }
+      p {
+        margin-top: 20px;
+        color: white;
+        font-size: 1em;
+      }
 
-        a {
-            color: #fff;
-            font-weight: bold;
-            text-decoration: underline;
-            transition: 0.3s;
-        }
+      a {
+        color: #fff;
+        font-weight: bold;
+        text-decoration: underline;
+        transition: 0.3s;
+      }
 
-        a:hover {
-            color: #cce7ff;
-        }
+      a:hover {
+        color: #cce7ff;
+      }
 
-        .logo {
-            font-size: 2.2em;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
+      .logo {
+        font-size: 2.2em;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="logo">💬 ChatFRX la v3</div>
     <h2>Connexion</h2>
+    <!-- popup d'installation -->
+    <div id="install-popup" style="display: none">
+      <p>Installez notre application pour une meilleure expérience !</p>
+      <button id="install-btn">Installer</button>
+    </div>
     <form id="loginForm">
-        <label for="name">Nom d'utilisateur :</label>
-        <input type="text" id="name" name="name" placeholder="Entrez votre pseudo" required>
+      <label for="name">Nom d'utilisateur :</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        placeholder="Entrez votre pseudo"
+        required
+      />
 
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" placeholder="Votre mot de passe" required>
+      <label for="password">Mot de passe :</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Votre mot de passe"
+        required
+      />
 
-        <button type="submit">Se connecter</button>
+      <button type="submit">Se connecter</button>
     </form>
     <p>Pas encore inscrit ? <a href="create-user.html">Créer un compte</a></p>
 
     <script src="login.js"></script>
     <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/service-worker.js")
-      .then(() => console.log("Service Worker enregistré"))
-      .catch(err => console.error("SW erreur", err));
-  });
-}
-</script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/service-worker.js")
+            .then(() => console.log("Service Worker enregistré"))
+            .catch((err) => console.error("SW erreur", err));
+        });
+      }
+      let deferredPrompt;
+      const installPopup = document.getElementById("install-popup");
+      const installButton = document.getElementById("install-btn");
 
-</body>
+      // Écouter l'événement beforeinstallprompt
+      window.addEventListener("beforeinstallprompt", (e) => {
+        // Empêcher le navigateur d'afficher son propre prompt
+        e.preventDefault();
+
+        // Sauvegarder l'événement pour l'utiliser plus tard
+        deferredPrompt = e;
+
+        // Afficher le popup d'installation
+        installPopup.style.display = "block";
+      });
+
+      // Lorsque l'utilisateur clique sur le bouton d'installation
+      installButton.addEventListener("click", () => {
+        // Afficher le prompt d'installation de la PWA
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+
+          // Attendre la réponse de l'utilisateur
+          deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === "accepted") {
+              console.log("L'utilisateur a accepté l'installation de la PWA");
+            } else {
+              console.log("L'utilisateur a refusé l'installation de la PWA");
+            }
+
+            // Réinitialiser l'événement
+            deferredPrompt = null;
+            installPopup.style.display = "none"; // Masquer le popup
+          });
+        }
+      });
+    </script>
+  </body>
 </html>

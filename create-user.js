@@ -6,7 +6,7 @@ const SERVER_URL = 'https://chatfrx3.onrender.com';
 //const SERVER_URL = 'https://chat-i4wn.onrender.com';
 
 const createUserForm = document.getElementById('createUserForm');
-createUserForm.addEventListener('submit', async function(e) {
+createUserForm.addEventListener('submit', async function (e) {
     e.preventDefault();
     const name = document.getElementById('name').value;
     const password = document.getElementById('password').value;
@@ -24,6 +24,6 @@ createUserForm.addEventListener('submit', async function(e) {
         window.location.href = 'login.html';
     } else {
         const error = await response.json();
-        alert('Erreur lors de la création du compte : ' + (error.error || '')); 
+        alert('Erreur lors de la création du compte : ' + (error.error || ''));
     }
 });

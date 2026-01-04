@@ -4,9 +4,8 @@
 // URL du serveur local ou Render
 const SERVER_URL = 'https://chatfrx3.onrender.com';
 //const SERVER_URL = 'https://chat-i4wn.onrender.com';
-
 const loginForm = document.getElementById('loginForm');
-loginForm.addEventListener('submit', async function(e) {
+loginForm.addEventListener('submit', async function (e) {
     e.preventDefault();
     const name = document.getElementById('name').value;
     const password = document.getElementById('password').value;
