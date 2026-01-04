@@ -11,7 +11,7 @@ const supabaseUrl = 'https://osqzuptinfbahmfncjgl.supabase.co';
 const supabaseKey = 'sb_secret_b4tZZmSvmT-vze7BvvNzhQ_zJFULUxt'; // ta clé
 const supabase = createClient(supabaseUrl, supabaseKey);
 //Web Push VAPID keys setup
-const webpush = require("web-push");
+/*const webpush = require("web-push");
 webpush.setVapidDetails(
   "mailto:admin@chatfrx3.com",
   "BOPWzt_qGiIn1zlY705YjJoB37kolNprqlIxemExyY510sLN9rPb-83cfj4_VkLbBpWxzINyAzb1yZVr-_fNvvk",
@@ -20,7 +20,7 @@ webpush.setVapidDetails(
 
 // ===========================
 
-let pushSubscriptions = [];
+let pushSubscriptions = [];*/
 
 // Créer un serveur HTTP basique avec gestion POST /user
 const server = http.createServer(async (req, res) => {
